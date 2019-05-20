@@ -13,7 +13,6 @@ router.get('/', autenticacion, async(req,res,next)=>{
 
 router.post('/', (req,res,next)=>{
     var datos = req.body;
-
     datos["fechaRegistro"] = new Date();
     bcrypt.hash(req.body.password,10, async(err,hash)=>{
         if(hash){
@@ -49,6 +48,45 @@ router.post('/login', async(req,res,next)=>{
     }else{
         res.status(401).json({message:"Email incorrecto"});
     }
+});
+
+router.put("/", autenticacion, async(req, res) => {
+    if (req.query.id == null) {
+        res.status(300).json({
+            msn: "id no encontrado"
+        });
+        return;
+    }
+    var id = req.query.id;
+    var params = req.body;
+    if (params.password != null) {
+        bcrypt.hash(req.body.password,10, async(err,hash)=>{
+            if(hash){
+                params["password"] = hash;
+                let result = await USER.findOneAndUpdate({_id: id}, params);
+                res.status(200).json(result);
+            }else{
+                res.status(500).json({
+                    message:err
+                });
+            }
+        });
+    }
+    else {
+        let result = await USER.findOneAndUpdate({_id: id}, params);
+        res.status(200).json(result);
+    }
+});
+
+router.delete("/", autenticacion, async(req, res) => {
+    if (req.query.id == null) {
+        res.status(300).json({
+            msn: "id no encontrado"
+        });
+        return;
+    }
+    var result = await USER.remove({_id: req.query.id});
+    res.status(200).json(result);
 });
 
 module.exports=router;

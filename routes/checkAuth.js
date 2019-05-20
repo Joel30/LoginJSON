@@ -11,8 +11,6 @@ module.exports = (req, res, next) => {
             res.status(300).json({"msn": "Token Invalido"});
             return;
         }
-        res.status(200).json(auth);
-        return;
         next();
     });
 };
